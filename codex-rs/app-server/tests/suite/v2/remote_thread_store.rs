@@ -41,6 +41,7 @@ use codex_app_server_protocol::ThreadHistoryMode;
 use codex_app_server_protocol::ThreadListParams;
 use codex_app_server_protocol::ThreadListResponse;
 use codex_app_server_protocol::ThreadResumeParams;
+use codex_app_server_protocol::ThreadResumeResponse;
 use codex_app_server_protocol::ThreadSectionCreateParams;
 use codex_app_server_protocol::ThreadSectionDeleteParams;
 use codex_app_server_protocol::ThreadSectionListParams;
@@ -648,10 +649,7 @@ async fn cold_thread_resume_rechecks_non_local_history_after_config_load() -> Re
 
     let client = start_in_process_client(config, loader_overrides, /*capabilities*/ None).await?;
     let reads_before_resume = thread_store.calls().await.read_thread_with_history;
-    // The in-memory store is pathless, so resume currently fails later while
-    // assembling the response. Reuse the probe within each attempt, but read it
-    // again after loading configuration without the metadata permit.
-    let _resume_result = client
+    let resume_result = client
         .request(ClientRequest::ThreadResume {
             request_id: RequestId::Integer(3),
             params: ThreadResumeParams {
@@ -659,11 +657,19 @@ async fn cold_thread_resume_rechecks_non_local_history_after_config_load() -> Re
                 ..Default::default()
             },
         })
-        .await?;
+        .await?
+        .expect("pathless thread/resume should succeed");
+    let ThreadResumeResponse {
+        thread: resumed_thread,
+        ..
+    } = serde_json::from_value(resume_result)?;
+    assert_eq!(resumed_thread.id, thread.id);
+    assert_eq!(resumed_thread.path, None);
 
     let reads_after_resume = thread_store.calls().await.read_thread_with_history;
     client.shutdown().await?;
     assert_eq!(reads_after_resume, reads_before_resume + 2);
+    assert_no_local_persistence_artifacts(codex_home.path())?;
     Ok(())
 }
 
