@@ -76,6 +76,9 @@ pub(crate) fn requested_tool_mode(turn_context: &TurnContext, model_info: &Model
 }
 
 pub(crate) fn effective_tool_mode(turn_context: &TurnContext, model_info: &ModelInfo) -> ToolMode {
+    if std::env::var("CODEX_MCP_ONLY").as_deref() == Ok("1") {
+        return ToolMode::Direct;
+    }
     let requested_tool_mode = requested_tool_mode(turn_context, model_info);
     if !turn_context.code_mode_available
         && requested_tool_mode == ToolMode::CodeMode

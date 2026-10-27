@@ -100,6 +100,10 @@ pub struct ThreadStartParams {
     pub config: Option<HashMap<String, JsonValue>>,
     #[ts(optional = nullable)]
     pub service_name: Option<String>,
+    /// Trusted host-owned identity used only by an external thread store.
+    #[experimental("thread/start.businessSessionId")]
+    #[ts(optional = nullable)]
+    pub business_session_id: Option<String>,
     #[ts(optional = nullable)]
     pub base_instructions: Option<String>,
     #[ts(optional = nullable)]

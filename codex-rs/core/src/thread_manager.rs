@@ -105,6 +105,8 @@ use codex_thread_store::MoveThreadToSectionParams;
 use codex_thread_store::PreparedFork;
 use codex_thread_store::ReadThreadByRolloutPathParams;
 use codex_thread_store::ReadThreadParams;
+use codex_thread_store::RemoteThreadStore;
+use codex_thread_store::RemoteThreadStoreConfig;
 use codex_thread_store::StoredModelContext;
 use codex_thread_store::StoredThread;
 use codex_thread_store::ThreadMetadataPatch;
@@ -558,6 +560,13 @@ pub fn thread_store_from_config(
         ThreadStoreConfig::InMemory { id } => {
             Arc::new(InMemoryThreadStore::for_id(id).with_state_db(state_db))
         }
+        ThreadStoreConfig::Remote { url, token_env } => Arc::new(
+            RemoteThreadStore::new(RemoteThreadStoreConfig {
+                url: url.clone(),
+                token_env: token_env.clone(),
+            })
+            .unwrap_or_else(|error| panic!("failed to initialize remote thread store: {error}")),
+        ),
     }
 }
 

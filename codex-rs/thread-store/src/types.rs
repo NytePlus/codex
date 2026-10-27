@@ -66,8 +66,12 @@ pub struct ThreadPersistenceMetadata {
 }
 
 /// Extra configuration fields for a thread.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ExtraConfig {}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExtraConfig {
+    /// Trusted host-owned business session identity. It is never model-visible.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub business_session_id: Option<String>,
+}
 
 /// Parameters required to create a persisted thread.
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -164,18 +164,22 @@ pub(crate) fn build_tool_router(
         &registered_mcp_tools,
         &mut registry,
     );
-    let standalone_web_search_tool = append_extension_tool_executors(
-        turn_context,
-        model_info,
-        extension_tool_executors(session, step_store),
-        &mut registry,
-    );
-    append_dynamic_tool_runtimes(&turn_context.dynamic_tools, &mut registry);
-    let hosted_specs = hosted_model_tool_specs(
-        turn_context,
-        model_info,
-        standalone_web_search_tool.as_slice(),
-    );
+    let hosted_specs = if std::env::var("CODEX_MCP_ONLY").as_deref() == Ok("1") {
+        Vec::new()
+    } else {
+        let standalone_web_search_tool = append_extension_tool_executors(
+            turn_context,
+            model_info,
+            extension_tool_executors(session, step_store),
+            &mut registry,
+        );
+        append_dynamic_tool_runtimes(&turn_context.dynamic_tools, &mut registry);
+        hosted_model_tool_specs(
+            turn_context,
+            model_info,
+            standalone_web_search_tool.as_slice(),
+        )
+    };
 
     finalize_tool_router(
         turn_context,
@@ -1183,6 +1187,9 @@ fn code_mode_namespace_descriptions(
 
 #[instrument(level = "trace", skip_all)]
 fn add_core_tool_sources(context: &CoreToolPlanContext<'_>, registry: &mut ToolRegistry) {
+    if std::env::var("CODEX_MCP_ONLY").as_deref() == Ok("1") {
+        return;
+    }
     // The startup ceiling applies to the thread and every selected environment.
     if context.tool_policy.require_managed_sandbox
         && (!matches!(

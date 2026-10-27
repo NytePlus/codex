@@ -1226,6 +1226,7 @@ impl ThreadRequestProcessor {
             permissions,
             config,
             service_name,
+            business_session_id,
             base_instructions,
             developer_instructions,
             dynamic_tools,
@@ -1328,6 +1329,7 @@ impl ThreadRequestProcessor {
                 daybreak_enabled,
                 environment_requests,
                 service_name,
+                business_session_id,
                 allow_provider_model_fallback,
                 experimental_raw_events,
                 request_trace,
@@ -1410,6 +1412,7 @@ impl ThreadRequestProcessor {
         daybreak_enabled: Option<bool>,
         environment_requests: Option<Vec<TurnEnvironmentRequest>>,
         service_name: Option<String>,
+        business_session_id: Option<String>,
         allow_provider_model_fallback: bool,
         experimental_raw_events: bool,
         request_trace: Option<W3cTraceContext>,
@@ -1426,6 +1429,9 @@ impl ThreadRequestProcessor {
                 "daybreakEnabled is not supported for ephemeral threads",
             ));
         }
+        config.extra_config = Some(codex_thread_store::ExtraConfig {
+            business_session_id,
+        });
         // Project-local config can launch host processes, so only the effective
         // permissions after managed constraints can imply project trust.
         let effective_permission_profile = config.permissions.effective_permission_profile();

@@ -620,6 +620,8 @@ pub enum ThreadStoreConfig {
     Local,
     /// In-memory thread store for test and debug configurations.
     InMemory { id: String },
+    /// HTTP persistence owned by the embedding application.
+    Remote { url: String, token_env: String },
 }
 
 /// Application configuration loaded from disk and merged with overrides.
@@ -2610,6 +2612,9 @@ fn thread_store_config(thread_store: Option<ThreadStoreToml>) -> ThreadStoreConf
     match thread_store {
         Some(ThreadStoreToml::Local {}) => ThreadStoreConfig::Local,
         Some(ThreadStoreToml::InMemory { id }) => ThreadStoreConfig::InMemory { id },
+        Some(ThreadStoreToml::Remote { url, token_env }) => {
+            ThreadStoreConfig::Remote { url, token_env }
+        }
         None => ThreadStoreConfig::Local,
     }
 }
