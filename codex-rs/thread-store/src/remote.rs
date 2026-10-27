@@ -33,6 +33,7 @@ pub struct RemoteThreadStore {
     token: String,
     loaded: Mutex<HashSet<ThreadId>>,
     creates: Mutex<HashMap<ThreadId, CreateThreadParams>>,
+    sync_lock: Mutex<()>,
 }
 
 impl RemoteThreadStore {
@@ -56,6 +57,7 @@ impl RemoteThreadStore {
             token,
             loaded: Mutex::new(HashSet::new()),
             creates: Mutex::new(HashMap::new()),
+            sync_lock: Mutex::new(()),
         })
     }
 
@@ -112,6 +114,8 @@ impl RemoteThreadStore {
     }
 
     async fn sync(&self, thread_id: ThreadId) -> ThreadStoreResult<()> {
+        // A late response from an older PUT must never overwrite a newer snapshot.
+        let _sync_guard = self.sync_lock.lock().await;
         let create = self
             .creates
             .lock()
