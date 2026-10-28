@@ -102,6 +102,7 @@ use tracing::instrument;
 
 const IMAGE_GEN_NAMESPACE: &str = "image_gen";
 const IMAGEGEN_TOOL_NAME: &str = "imagegen";
+const SKILLS_NAMESPACE: &str = "skills";
 
 #[derive(Clone, Copy)]
 struct CoreToolPlanContext<'a> {
@@ -164,13 +165,21 @@ pub(crate) fn build_tool_router(
         &registered_mcp_tools,
         &mut registry,
     );
+    let extension_tool_executors = extension_tool_executors(session, step_store);
     let hosted_specs = if std::env::var("CODEX_MCP_ONLY").as_deref() == Ok("1") {
+        append_extension_tool_executors(
+            turn_context,
+            model_info,
+            extension_tool_executors
+                .filter(|executor| extension_tool_allowed_in_mcp_only(&executor.tool_name())),
+            &mut registry,
+        );
         Vec::new()
     } else {
         let standalone_web_search_tool = append_extension_tool_executors(
             turn_context,
             model_info,
-            extension_tool_executors(session, step_store),
+            extension_tool_executors,
             &mut registry,
         );
         append_dynamic_tool_runtimes(&turn_context.dynamic_tools, &mut registry);
@@ -197,6 +206,10 @@ fn code_mode_only_strict_3p_tools(turn_context: &TurnContext, model_info: &Model
             .config
             .features
             .enabled(Feature::CodeModeOnlyStrictThirdPartyTools)
+}
+
+pub(crate) fn extension_tool_allowed_in_mcp_only(tool_name: &ToolName) -> bool {
+    tool_name.namespace.as_deref() == Some(SKILLS_NAMESPACE)
 }
 
 fn apply_mcp_tool_exposure_policy(
