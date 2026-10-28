@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use codex_protocol::ThreadId;
+use codex_rollout::RolloutItem;
 use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 
@@ -103,6 +104,7 @@ impl RemoteThreadStore {
                 thread_id,
                 rollout_path: None,
                 history: Some(Arc::new(snapshot.history.items)),
+                history_revision: None,
                 include_archived: true,
                 metadata: snapshot.create.metadata.clone(),
             },
@@ -168,7 +170,10 @@ impl ThreadStore for RemoteThreadStore {
         })
     }
 
-    fn resume_thread(&self, params: ResumeThreadParams) -> ThreadStoreFuture<'_, ()> {
+    fn resume_thread(
+        &self,
+        params: ResumeThreadParams,
+    ) -> ThreadStoreFuture<'_, Arc<Vec<RolloutItem>>> {
         Box::pin(async move {
             self.ensure_loaded(params.thread_id).await?;
             <InMemoryThreadStore as ThreadStore>::resume_thread(&self.inner, params).await
