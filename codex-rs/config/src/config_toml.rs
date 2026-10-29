@@ -577,6 +577,10 @@ pub enum ThreadStoreToml {
     InMemory {
         id: String,
     },
+    Remote {
+        url: String,
+        token_env: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq, JsonSchema)]

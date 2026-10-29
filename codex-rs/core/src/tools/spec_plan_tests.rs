@@ -60,8 +60,26 @@ use crate::tools::router::ToolSuggestCandidates;
 use crate::tools::router::ToolSuggestPresentation;
 use crate::tools::spec_plan::append_source_tools;
 use crate::tools::spec_plan::build_core_tool_registry;
+use crate::tools::spec_plan::extension_tool_allowed_in_mcp_only;
 
 const MULTI_AGENT_V2_NAMESPACE: &str = "collaboration";
+
+#[test]
+fn mcp_only_allows_skills_extension_tools_only() {
+    assert!(extension_tool_allowed_in_mcp_only(&ToolName::namespaced(
+        "skills", "list",
+    )));
+    assert!(extension_tool_allowed_in_mcp_only(&ToolName::namespaced(
+        "skills", "read",
+    )));
+    assert!(!extension_tool_allowed_in_mcp_only(&ToolName::namespaced(
+        "web", "run",
+    )));
+    assert!(!extension_tool_allowed_in_mcp_only(&ToolName::namespaced(
+        "image_gen",
+        "imagegen",
+    )));
+}
 
 #[derive(Default)]
 struct ToolPlanInputs {

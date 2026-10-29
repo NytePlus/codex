@@ -1,0 +1,20 @@
+AI-Teaching Codex modification notice
+
+This image contains the NytePlus/codex fork based on OpenAI Codex
+rust-v0.155.1. It is built directly from a revision of the fork by the
+NytePlus/codex release workflow; image labels record that revision.
+
+The patch makes CODEX_MCP_ONLY=1 a hard tool boundary: it removes Codex-owned,
+extension, dynamic, hosted, and code-mode tools while retaining explicitly
+configured MCP tools. The only extension-tool exception is the Codex Skills
+namespace (`skills.list` and `skills.read`); other extension tools remain
+blocked. This is not an unmodified OpenAI Codex distribution.
+
+AI-Teaching business Skills are versioned with the fork under
+integrations/ai-teaching/skills and copied into the backend image from the
+same verified source commit as the App Server binary.
+
+The fork also implements a remote ThreadStore. AI-Teaching supplies a private
+HTTP persistence API which stores Codex thread snapshots in its MySQL
+session/message schema. Pathless threads resume directly from that store;
+local rollout JSONL and SQLite are not authoritative.

@@ -1400,6 +1400,7 @@ async fn skills_changed_notification_is_emitted_after_skill_change() -> Result<(
             dynamic_tools: None,
             environments: None,
             selected_capability_roots: None,
+            business_session_id: None,
             mock_experimental_field: None,
             experimental_raw_events: false,
         })

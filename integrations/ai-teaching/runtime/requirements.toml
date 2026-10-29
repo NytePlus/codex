@@ -1,0 +1,42 @@
+# Enforce the student runtime's MCP-only tool boundary.
+allowed_approval_policies = ["never"]
+allowed_sandbox_modes = ["read-only"]
+allowed_web_search_modes = []
+allow_browser_and_computer_use = false
+allow_appshots = false
+allow_remote_control = false
+allow_managed_hooks_only = true
+
+[features]
+code_mode = false
+code_mode_only = false
+shell_tool = false
+code_mode_host = false
+code_mode_prewarm = false
+code_mode_interrupt = false
+unified_exec = false
+unified_exec_tty = false
+browser_use = false
+browser_use_external = false
+browser_use_full_cdp_access = false
+computer_use = false
+multi_agent = false
+apps = false
+plugins = false
+remote_plugin = false
+hooks = false
+goals = false
+sleep_tool = false
+image_generation = false
+view_image = false
+skill_search = true
+skill_mcp_dependency_install = false
+workspace_dependencies = false
+in_app_browser = false
+in_app_local_automation = false
+worktrees = false
+tool_suggest = false
+memories = false
+
+[mcp_servers.ai_teaching.identity]
+url = "http://127.0.0.1:5001/internal/mcp"
