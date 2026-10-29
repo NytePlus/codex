@@ -1,0 +1,7 @@
+.git
+.github
+**/target
+**/node_modules
+**/.cache
+**/__pycache__
+*.log
